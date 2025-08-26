@@ -16,17 +16,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// --- Template Definitions ---
+// --- Template Definitions (Corrected) ---
 
-// goModTmpl now requires the framework from its repository.
 var goModTmpl = `module {{.ProjectName}}
 
 go 1.19
 
 require (
 	github.com/gin-gonic/gin v1.8.1
+	github.com/yuliussmayoru/grob-framework v0.1.0
 	go.uber.org/dig v1.15.0
-	github.com/yuliussmayoru/grob-framework v0.1.0 // Assumes you have a v0.1.0 tag
 )
 `
 
@@ -55,9 +54,7 @@ type AppRunner interface {
 }
 
 func main() {
-    apps := map[string]AppRunner{
-        // CLI will automatically register new apps here
-    }
+    apps := map[string]AppRunner{}
 
     var wg sync.WaitGroup
 
@@ -82,12 +79,10 @@ func main() {
 }
 `
 
-// appMainTmpl now uses the correct import path for the framework.
-var appMainTmpl = `package main
+var appMainTmpl = `package {{.AppName}}
 
 import (
 	"{{.ProjectName}}/internal/{{.AppName}}/core"
-	// CLI will automatically register new modules here
 )
 
 // App struct holds the application instance.
@@ -98,9 +93,7 @@ func (a App) Run() {
 	// TODO: Make port configurable
 	port := ":8081" 
 	
-	app := core.New(
-		// CLI will automatically register new modules here
-	)
+	app := core.New()
 
 	// Example of creating a route group for this app
 	// api := app.Router().Group("/api/{{.AppName}}")
@@ -229,7 +222,6 @@ func newProject(cmd *cobra.Command, args []string) {
 		log.Fatalf("Failed to create project directory: %v", err)
 	}
 
-	// Create subdirectories - note we no longer create pkg/framework
 	dirs := []string{
 		filepath.Join(projectName, "internal"),
 	}
@@ -239,7 +231,6 @@ func newProject(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	// Create files from templates
 	createFileFromTmpl(filepath.Join(projectName, "go.mod"), goModTmpl, map[string]string{"ProjectName": projectName})
 	createFileFromTmpl(filepath.Join(projectName, ".gitignore"), gitignoreTmpl, nil)
 	createFileFromTmpl(filepath.Join(projectName, "internal", "main.go"), internalMainTmpl, nil)
@@ -266,17 +257,14 @@ func createApp(cmd *cobra.Command, args []string) {
 		log.Fatalf("Failed to create app directory: %v", err)
 	}
 
-	// Create a core directory for the app to hold framework files
 	coreDir := filepath.Join(appDir, "core")
 	if err := os.Mkdir(coreDir, 0755); err != nil {
 		log.Fatalf("Failed to create app core directory: %v", err)
 	}
 
-	// Here you would copy or generate the framework core files into the app's core directory
-	// For now, we'll just create placeholder files.
-	// In a real CLI, you might embed the framework source or fetch it.
 	coreFileContent := `package core
 import "github.com/yuliussmayoru/grob-framework/pkg/framework"
+
 // Re-export the framework types to make them local to the app
 type App = framework.App
 type Module = framework.Module
