@@ -238,8 +238,8 @@ func newProject(cmd *cobra.Command, args []string) {
 	log.Printf("Project '%s' created successfully.", projectName)
 	log.Println("Next steps:")
 	log.Printf("  cd %s", projectName)
-	log.Println("  go mod tidy  # To download the framework")
 	log.Println("  grob create-app myapp")
+	log.Println("  go mod tidy  # To download dependencies")
 }
 
 func createApp(cmd *cobra.Command, args []string) {
