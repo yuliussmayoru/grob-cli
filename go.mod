@@ -1,4 +1,4 @@
-module github.com/yuliussmayoru/grob-cli
+module github.com/yuliussmayoru/grob
 
 go 1.24.6
 
